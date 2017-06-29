@@ -24,7 +24,7 @@ def run():
     base_results = TraceHandler(
         config.BASE_TRACES,
         convert_jar=config.ANTI_CONFUSE_TOOL,
-        mapping_path=config.MAPPING_FILE).anti_mapping().analysis().get("dict")
+        mapping_path=config.MAPPING_FILE).anti_mapping.analysis.get("dict")
 
     # 获取当前traceview的解析结果
     logger.info(u"开始解析: " + config.BASE_TRACES)
@@ -32,7 +32,7 @@ def run():
     compare_results = TraceHandler(
         config.COMPARE_TRACES,
         convert_jar=config.ANTI_CONFUSE_TOOL,
-        mapping_path=config.MAPPING_FILE).anti_mapping().analysis().get("dict")
+        mapping_path=config.MAPPING_FILE).anti_mapping.analysis.get("dict")
 
     # 生成csv结果
     template = Template(

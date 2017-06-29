@@ -25,6 +25,7 @@ class TraceHandler(object):
         self.mode = mode
         self.analysis_results = None
 
+    @property
     def anti_mapping(self):
         """反混淆操作"""
 
@@ -44,6 +45,7 @@ class TraceHandler(object):
             raise Exception("trace文件解混淆失败: " + str(e))
         return self
 
+    @property
     def analysis(self, sort=True):
         """结果格式为
             {

@@ -9,7 +9,7 @@
 
 ### 结果输出
 有两种方式
-1. 通过`TraceUtils(...).anti_mapping().analysis().get("dict")`可以获取解析结果,结果是一个`dict/json`，格式为
+1. 通过`TraceUtils(...).anti_mapping.analysis.get("dict")`可以获取解析结果,结果是一个`dict/json`，格式为
 ```json
             {
                 "inclusive": "xx",
