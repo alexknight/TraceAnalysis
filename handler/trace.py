@@ -1,4 +1,5 @@
 # coding:utf-8
+import json
 import os
 from util import log
 from util.analysis_tracefile import TraceDump, sortInclThreadCost
@@ -59,5 +60,10 @@ class TraceHandler(object):
         self.analysis_results = self.trace_dump.analysisTraceFile(self.trace_path, self.mode)
         sorted_dic = sortInclThreadCost(self.analysis_results, self.mode, sort)
         self.analysis_results['sorted_dic'] = sorted_dic
-        return self.analysis_results
+        return self
 
+    def get(self, resp="json"):
+        if resp == "json":
+            return json.dumps(self.analysis_results)
+        elif resp == "dict":
+            return self.analysis_results

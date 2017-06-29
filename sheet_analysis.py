@@ -17,18 +17,22 @@ table_rows = ['调用方法', '隶属线程', '基准分支排名', '对比分�
 
 def run():
     # 获取基准traceview的解析结果
+    logger.info(u"csv日志结果清理")
+    if os.path.exists(csv_path):
+        os.remove(csv_path)
     logger.info(u"开始解析: " + config.BASE_TRACES)
     base_results = TraceHandler(
         config.BASE_TRACES,
         convert_jar=config.ANTI_CONFUSE_TOOL,
-        mapping_path=config.MAPPING_FILE).anti_mapping().analysis()
+        mapping_path=config.MAPPING_FILE).anti_mapping().analysis().get("dict")
 
     # 获取当前traceview的解析结果
     logger.info(u"开始解析: " + config.BASE_TRACES)
+    # r = json.loads(base_results)
     compare_results = TraceHandler(
         config.COMPARE_TRACES,
         convert_jar=config.ANTI_CONFUSE_TOOL,
-        mapping_path=config.MAPPING_FILE).anti_mapping().analysis()
+        mapping_path=config.MAPPING_FILE).anti_mapping().analysis().get("dict")
 
     # 生成csv结果
     template = Template(
@@ -40,6 +44,7 @@ def run():
     )
 
     table_rows[0] += csv_name
+
     template.generateTableData(csv_path, table_rows)
     logger.info(u"结果已生成: " + csv_name)
 
