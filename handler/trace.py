@@ -6,7 +6,7 @@ from util.analysis_tracefile import TraceDump, sortInclThreadCost
 logger = log.logger()
 
 
-class TraceUtils(object):
+class TraceHandler(object):
     def __init__(self,  trace_path, mapping_path=None, convert_jar=None, mode="exclusive"):
         """traceview解析的工具类
         :params convert_jar: convert_jar文件

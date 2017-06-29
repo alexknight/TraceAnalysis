@@ -3,6 +3,8 @@ import os
 import logging
 import logging.config as log_conf
 
+from config import config
+
 log_dir = os.path.dirname(os.path.dirname(__file__))+'/logs'
 if not os.path.exists(log_dir):
     os.mkdir(log_dir)
@@ -39,9 +41,9 @@ log_config = {
     'loggers': {
         'online': {
             'handlers': ['console', 'file'],
-            'level': 'DEBUG',
+            'level': 'INFO',
         },
-        'dev': {
+        'debug': {
             'handlers': ['console', 'file'],
             'level': 'DEBUG',
         },
@@ -52,4 +54,4 @@ log_config = {
 def logger():
     log_conf.dictConfig(log_config)
 
-    return logging.getLogger('dev')
+    return logging.getLogger(config.LOG_LEVEL)

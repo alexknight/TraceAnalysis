@@ -4,13 +4,16 @@ import os
 import re
 import sys
 
-import config
+from config import config
+from log import logger
 
 sys.path.append("../")
 
+logger = logger()
+
 MAX_RECORD = int(config.MAX_SAVE_RECORDS)
 
-WATCHER = config.WATCH_MODULES
+WATCHER = config.WATCH_MODULES or ""
 
 
 class TraceDump(object):
@@ -38,7 +41,7 @@ class TraceDump(object):
                     if "Exclusive elapsed times for each method" in line_content:
                         flag = True
         except IOError:
-            print "The file don't exist, Please double check!"
+            logger.error("The file don't exist, Please double check!")
 
         regex = '(\d+?)\s+?([\d\.]+?)\s+?([\d\.]+?)\s+?\[(\d+?)\]\s+?(.+?)$'
         p = re.compile(regex)
@@ -49,7 +52,7 @@ class TraceDump(object):
             if len(result) != 0:
                 result = result[0]
                 method_dict[result[3]] = result[4]
-                tmp_method = self.trimPreStr(result[4].replace(" ", "").replace("/","."), '.')
+                tmp_method = self.trimPreStr(result[4].replace(" ", "").replace("/", "."), '.')
                 if re.search(WATCHER, tmp_method) is not None:
                     excl_data[tmp_method] = int(result[0])
         return method_dict, excl_data
@@ -73,7 +76,7 @@ class TraceDump(object):
                     if "Inclusive elapsed times for each method" in line_content:
                         flag = True
         except IOError:
-            print "The file don't exist, Please double check!"
+            logger.error("The file don't exist, Please double check!")
 
         regex_self = '\[(\d+?)\]\s+?([\d\.]+?)%\s+?([\d\+]+?)\s+?(\d+?)\s+?(.+?)$'
         regex_other = '([\d\.]+?)%\s+?\[(\d+?)\]\s+?([\d\/]+?)\s+?(\d+?)\s+?(.+?)$'
@@ -85,12 +88,12 @@ class TraceDump(object):
         for each_incl_record in incl_record:
             flag = 0
             index = 0
-            method_dict = {0:[], 1:[]}
+            method_dict = {0: [], 1: []}
             for each_incl in each_incl_record:
                 result = p_other.findall(each_incl)
                 if len(result) != 0:
                     result = result[0]
-                    tmp_method = self.trimPreStr(result[4].replace(" ", "").replace("/","."), '.')
+                    tmp_method = self.trimPreStr(result[4].replace(" ", "").replace("/", "."), '.')
                     method_dict[flag].append(tmp_method)
                     if re.search(WATCHER, tmp_method) is not None:
                         if tmp_method not in incl_data.keys():
@@ -102,10 +105,10 @@ class TraceDump(object):
                     result = p_self.findall(each_incl)
                     if len(result) != 0:
                         result = result[0]
-                        tmp_method = self.trimPreStr(result[4].replace(" ", "").replace("/","."), '.')
-#                         print tmp_method
-#                         if re.search(WATCHER, tmp_method) is not None:
-#                             incl_data[tmp_method] = int(result[3])
+                        tmp_method = self.trimPreStr(result[4].replace(" ", "").replace("/", "."), '.')
+                        #                         print tmp_method
+                        #                         if re.search(WATCHER, tmp_method) is not None:
+                        #                             incl_data[tmp_method] = int(result[3])
                         flag = 1
                         index = tmp_method
             parent_children[index] = method_dict
@@ -123,7 +126,7 @@ class TraceDump(object):
                     if "Exclusive elapsed time for each method" in line_content:
                         flag = True
         except IOError:
-            print "The file don't exist, Please double check!"
+            logger.error("The file don't exist, Please double check!")
 
         regex = '(\d+?)\s+?([\d\.]+?)\s+?([\d\.]+?)\s+?([\d\.]+?)\s+?(\d+?)\+(\d+?)\s+?\[(\d+?)\]\s+?(.+?)$'
         p = re.compile(regex)
@@ -132,7 +135,7 @@ class TraceDump(object):
             result = p.findall(each_excl)
             if len(result) != 0:
                 result = result[0]
-                tmp_method = self.trimPreStr(result[7].replace(" ", "").replace("/","."), '.')
+                tmp_method = self.trimPreStr(result[7].replace(" ", "").replace("/", "."), '.')
                 if re.search(WATCHER, tmp_method) is not None:
                     call_data[tmp_method] = int(result[4]) + int(result[5])
         return call_data
@@ -165,7 +168,7 @@ class TraceDump(object):
                         result = result[0]
                         # 将方法中多余多空格去掉，将 / 转成 . ，
                         # 并且把前面用于表现层级关系的 . 去掉
-                        tmp_method = self.trimPreStr(result[3].replace(" ", "").replace("/","."), '.')
+                        tmp_method = self.trimPreStr(result[3].replace(" ", "").replace("/", "."), '.')
 
                         if result[0] not in threads.keys():
                             continue
@@ -173,7 +176,7 @@ class TraceDump(object):
                             thread_time[threads[result[0]]] = 0
                         thread_time[threads[result[0]]] = int(result[2])
                         if re.search(WATCHER, tmp_method) is not None:
-                            if not(tmp_method in method_thread.keys()):
+                            if not (tmp_method in method_thread.keys()):
                                 method_thread[tmp_method] = threads[result[0]]
                         if result[0] in tmp.keys():
                             if len(tmp[result[0]]) != 0:
@@ -188,9 +191,9 @@ class TraceDump(object):
                             if result[1] == "ent":
                                 tmp[result[0]] = [(result[1], result[2], result[3])]
 
-            return {value:key for key, value in threads.items()}, thread_time, method_thread
+            return {value: key for key, value in threads.items()}, thread_time, method_thread
         except IOError:
-            print "The file don't exist, Please double check!"
+            logger.error("The file don't exist, Please double check!")
 
     # 去掉前置的 .
     def trimPreStr(self, s, opt):
@@ -198,7 +201,7 @@ class TraceDump(object):
         i = 0
         while i < length:
             if s[i] == opt:
-                i +=1
+                i += 1
             else:
                 break
         return s[i:length]
@@ -243,9 +246,9 @@ class TraceDump(object):
         txt_file_thread_o = fileName[:fileName.rfind('.')] + "_o.txt"
         if not os.path.exists(txt_file_thread_o):
             os.system('dmtracedump -o ' + fileName.replace("(", "\(").replace(")", "\)") + ' > '
-                                              + txt_file_thread_o.replace("(", "\(").replace(")", "\)"))
+                      + txt_file_thread_o.replace("(", "\(").replace(")", "\)"))
         # method_stack,threads = self.analysiscCycleFunction(txt_file_thread_o)
-        theads_pid, thead_time_result,method_thread = self.analysisTheadTime(txt_file_thread_o)
+        theads_pid, thead_time_result, method_thread = self.analysisTheadTime(txt_file_thread_o)
         thead_time_items = sorted(thead_time_result.items(), lambda x, y: cmp(x[1], y[1]), reverse=True)
         len_theads = len(thead_time_items)
         len_theads = min(len_theads, MAX_RECORD)
@@ -253,17 +256,16 @@ class TraceDump(object):
         for i in range(0, len_theads):
             thead_time_result[thead_time_items[i][0]] = thead_time_items[i][1]
 
-
-        final_inclusive_time_result,inclusive_costs = self.render_data(inclusive_time_result, parent_children, method_dict)
-        final_exclusive_time_result,exclusive_costs = self.render_data(exclusive_time_result, parent_children, method_dict)
+        final_inclusive_time_result, inclusive_costs = self.render_data(inclusive_time_result, parent_children,
+                                                                        method_dict)
+        final_exclusive_time_result, exclusive_costs = self.render_data(exclusive_time_result, parent_children,
+                                                                        method_dict)
 
         final_thead_time_result = []
 
         for key, value in thead_time_result.items():
             if key in theads_pid.keys():
-                final_thead_time_result.append({"name" : theads_pid[key], "time" : value})
-
-
+                final_thead_time_result.append({"name": theads_pid[key], "time": value})
 
         if mode == "inclusive":
             costs = inclusive_costs
@@ -291,7 +293,7 @@ class TraceDump(object):
             one_record = {}
             one_record['name'] = key
             one_record['time'] = value
-            cost_time = cost_time+value
+            cost_time = cost_time + value
             parents = []
             children = []
             if key in parent_children.keys():
@@ -302,9 +304,10 @@ class TraceDump(object):
                 one_record['parents'] = parents
                 one_record['children'] = children
             result.append(one_record)
-        return result,cost_time
+        return result, cost_time
 
-def sortInclThreadCost(result_dic,mode,sort):
+
+def sortInclThreadCost(result_dic, mode, sort):
     before_sort = {}
     sorted_tmp_dic = {}
     sorted_dic = {}
